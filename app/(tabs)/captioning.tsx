@@ -97,13 +97,21 @@ const CaptioningScreen = () => {
             });
 
             // Upload image and get caption
-            const response = await imageService.uploadImage(formData);
-            setCaption(response.description);
-            setImageId(response.id);
+            try {
+                const response = await imageService.uploadImage(formData);
+                setCaption(response.description);
+                setImageId(response.id);
+            } catch (error: any) {
+                console.error('Error details:', error.response?.data || error.message);
+                Alert.alert(
+                    'Lỗi khi tạo caption',
+                    'Không thể kết nối với máy chủ. Vui lòng kiểm tra cài đặt mạng và URL API trong services/api.ts'
+                );
+            }
 
         } catch (error) {
             console.error('Error generating caption:', error);
-            Alert.alert('Error', 'Failed to generate caption. Please try again.');
+            Alert.alert('Lỗi', 'Không thể tạo caption. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }

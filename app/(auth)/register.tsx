@@ -34,25 +34,43 @@ const RegisterScreen = () => {
         return emailRegex.test(email);
     };
 
+    const validatePassword = (password: string) => {
+        if (password.length < 6) {
+            return { valid: false, error: 'Mật khẩu phải có ít nhất 6 ký tự' };
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            return { valid: false, error: 'Mật khẩu phải có ít nhất 1 chữ in hoa' };
+        }
+
+        const specialChars = "!@#$%^&*()-_=+[]{}|;:'\",.<>/?";
+        if (!password.split('').some(char => specialChars.includes(char))) {
+            return { valid: false, error: 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt' };
+        }
+
+        return { valid: true, error: '' };
+    };
+
     const handleRegister = async () => {
         // Validate inputs
         if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-            Alert.alert('Error', 'Please fill in all required fields');
+            Alert.alert('Lỗi', 'Vui lòng điền đầy đủ các trường bắt buộc');
             return;
         }
 
         if (!validateEmail(email)) {
-            Alert.alert('Error', 'Please enter a valid email address');
+            Alert.alert('Lỗi', 'Email không hợp lệ');
+            return;
+        }
+
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.valid) {
+            Alert.alert('Lỗi', passwordValidation.error);
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('Error', 'Passwords do not match');
-            return;
-        }
-
-        if (password.length < 6) {
-            Alert.alert('Error', 'Password must be at least 6 characters long');
+            Alert.alert('Lỗi', 'Mật khẩu không khớp');
             return;
         }
 
@@ -68,7 +86,7 @@ const RegisterScreen = () => {
             // Navigate to home screen after successful registration
             router.replace('/(tabs)');
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.error || 'Registration failed. Please try again.');
+            Alert.alert('Lỗi', error.response?.data?.error || 'Đăng ký thất bại. Vui lòng thử lại.');
         } finally {
             setIsLoading(false);
         }

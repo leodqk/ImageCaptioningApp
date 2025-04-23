@@ -1,8 +1,10 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Base URL for API requests
-const API_URL = "http://localhost:5000/api";
+// Base URL for API requests - Cập nhật địa chỉ API của bạn tại đây
+const API_URL = "http://10.0.2.2:5000/api"; // Sử dụng 10.0.2.2 để kết nối đến localhost của máy chủ từ Android Emulator
+// const API_URL = "http://localhost:5000/api"; // Dùng cho iOS simulator
+// const API_URL = "http://192.168.1.xxx:5000/api"; // Thay xxx bằng địa chỉ IP của máy chủ trong mạng LAN
 
 // Create axios instance
 const api = axios.create({

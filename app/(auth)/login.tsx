@@ -28,9 +28,20 @@ const LoginScreen = () => {
     const router = useRouter();
     const { login } = useAuth();
 
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     const handleLogin = async () => {
         if (!identifier.trim() || !password.trim()) {
-            Alert.alert('Error', 'Please fill in all fields');
+            Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
+        // Kiểm tra định dạng email nếu người dùng chọn đăng nhập bằng email
+        if (identifierType === 'email' && !validateEmail(identifier)) {
+            Alert.alert('Lỗi', 'Email không hợp lệ');
             return;
         }
 
@@ -43,7 +54,7 @@ const LoginScreen = () => {
             await login(credentials);
             router.replace('/(tabs)');
         } catch (error: any) {
-            Alert.alert('Error', error.response?.data?.error || 'Login failed. Please try again.');
+            Alert.alert('Lỗi', error.response?.data?.error || 'Đăng nhập thất bại. Vui lòng thử lại.');
         } finally {
             setIsLoading(false);
         }
