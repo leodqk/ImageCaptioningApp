@@ -14,7 +14,7 @@ SplashScreen.preventAutoHideAsync();
 
 // Định nghĩa hook để xử lý các navigation redirect
 function useProtectedRoutes() {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, user } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -27,16 +27,21 @@ function useProtectedRoutes() {
     const checkIntroStatus = async () => {
       const isIntroCompleted = await AsyncStorage.getItem('introCompleted');
 
-      if (!isIntroCompleted && !inIntroScreen) {
-        // If intro not completed, redirect to intro
-        router.replace('/intro');
-      } else if (isIntroCompleted) {
-        if (!isAuthenticated && !inAuthGroup) {
-          // If not authenticated, redirect to login
+      // Logic chuyển hướng chính
+      if (!isAuthenticated) {
+        // Nếu chưa đăng nhập
+        if (!inAuthGroup) {
+          // Không ở trong auth group
           router.replace('/(auth)/login');
-        } else if (isAuthenticated && (inAuthGroup || inIntroScreen)) {
-          // If authenticated, redirect to home
+        }
+      } else {
+        // Đã đăng nhập
+        if (inAuthGroup) {
+          // Chuyển về trang chính
           router.replace('/(tabs)');
+        } else if (!isIntroCompleted && !inIntroScreen) {
+          // Chưa xem intro
+          router.replace('/intro');
         }
       }
     };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -11,6 +11,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
@@ -18,6 +19,29 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Giả lập logo khi chưa có asset thật
 const dummyLogo = { uri: 'https://via.placeholder.com/100x100/2E86C1/FFFFFF?text=Logo' };
+const { width } = Dimensions.get('window');
+
+// Các tính năng của ứng dụng để hiển thị
+const features = [
+    {
+        id: '1',
+        icon: 'camera-outline',
+        title: 'Mô tả thông minh',
+        description: 'AI tạo mô tả chi tiết cho ảnh của bạn'
+    },
+    {
+        id: '2',
+        icon: 'mic-outline',
+        title: 'Nghe mô tả',
+        description: 'Chuyển đổi mô tả thành giọng nói'
+    },
+    {
+        id: '3',
+        icon: 'share-social-outline',
+        title: 'Chia sẻ dễ dàng',
+        description: 'Chia sẻ ảnh và mô tả với bạn bè'
+    }
+];
 
 const LoginScreen = () => {
     const [identifier, setIdentifier] = useState('');
@@ -78,42 +102,58 @@ const LoginScreen = () => {
                         resizeMode="contain"
                     />
                     <Text style={styles.title}>Image Captioning App</Text>
+                    <Text style={styles.subtitle}>Biến đổi ảnh thành lời với AI</Text>
+                </View>
+
+                {/* Phần hiển thị tính năng */}
+                <View style={styles.featuresContainer}>
+                    {features.map((feature) => (
+                        <View key={feature.id} style={styles.featureItem}>
+                            <View style={styles.featureIcon}>
+                                <Ionicons name={feature.icon as any} size={24} color="#2E86C1" />
+                            </View>
+                            <View style={styles.featureTextContainer}>
+                                <Text style={styles.featureTitle}>{feature.title}</Text>
+                                <Text style={styles.featureDescription}>{feature.description}</Text>
+                            </View>
+                        </View>
+                    ))}
                 </View>
 
                 <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>
-                            {identifierType === 'email' ? 'Email' : 'Username'}
+                            {identifierType === 'email' ? 'Email' : 'Tên đăng nhập'}
                         </Text>
                         <TextInput
                             style={styles.input}
                             value={identifier}
                             onChangeText={setIdentifier}
-                            placeholder={identifierType === 'email' ? 'Enter your email' : 'Enter your username'}
+                            placeholder={identifierType === 'email' ? 'Nhập email của bạn' : 'Nhập tên đăng nhập'}
                             keyboardType={identifierType === 'email' ? 'email-address' : 'default'}
                             autoCapitalize="none"
                         />
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Password</Text>
+                        <Text style={styles.label}>Mật khẩu</Text>
                         <TextInput
                             style={styles.input}
                             value={password}
                             onChangeText={setPassword}
-                            placeholder="Enter your password"
+                            placeholder="Nhập mật khẩu của bạn"
                             secureTextEntry
                         />
                     </View>
 
                     <TouchableOpacity style={styles.toggleContainer} onPress={toggleIdentifierType}>
                         <Text style={styles.toggleText}>
-                            Sign in with {identifierType === 'email' ? 'username' : 'email'} instead
+                            Đăng nhập bằng {identifierType === 'email' ? 'tên đăng nhập' : 'email'}
                         </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.forgotPassword} onPress={() => Alert.alert('Coming Soon', 'Forgot password feature will be available soon.')}>
-                        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                    <TouchableOpacity style={styles.forgotPassword} onPress={() => Alert.alert('Thông báo', 'Tính năng quên mật khẩu sẽ có trong phiên bản tới.')}>
+                        <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -124,14 +164,14 @@ const LoginScreen = () => {
                         {isLoading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Sign In</Text>
+                            <Text style={styles.buttonText}>Đăng nhập</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.registerContainer}>
-                        <Text style={styles.registerText}>Don't have an account? </Text>
+                        <Text style={styles.registerText}>Chưa có tài khoản? </Text>
                         <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                            <Text style={styles.registerLink}>Sign Up</Text>
+                            <Text style={styles.registerLink}>Đăng ký</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -163,6 +203,10 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#2E86C1',
+    },
+    subtitle: {
+        fontSize: 16,
+        color: '#333',
     },
     formContainer: {
         width: '100%',
@@ -224,6 +268,28 @@ const styles = StyleSheet.create({
     toggleText: {
         color: '#2E86C1',
         fontSize: 14,
+    },
+    featuresContainer: {
+        marginBottom: 40,
+    },
+    featureItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    featureIcon: {
+        marginRight: 10,
+    },
+    featureTextContainer: {
+        flex: 1,
+    },
+    featureTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    featureDescription: {
+        color: '#666',
     },
 });
 
