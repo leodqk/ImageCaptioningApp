@@ -52,11 +52,61 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLoading(true);
         try {
             const response = await authService.login(credentials);
-            await AsyncStorage.setItem('token', response.access_token);
+            console.log('Login response:', response);
 
-            // Get user profile after login
-            const userProfile = await userService.getProfile();
-            setUser(userProfile);
+            // Lưu token đúng theo cấu trúc của backend
+            if (response.access_token) {
+                await AsyncStorage.setItem('token', response.access_token);
+            } else if (response.token) {
+                await AsyncStorage.setItem('token', response.token);
+            } else {
+                console.error('Login không trả về token');
+                throw new Error('Không tìm thấy token trong response');
+            }
+
+            try {
+                // Get user profile after login
+                const userProfile = await userService.getProfile();
+                console.log('User profile:', userProfile);
+
+                // Đảm bảo userProfile có cấu trúc đúng
+                if (userProfile && userProfile.id) {
+                    setUser(userProfile);
+                } else if (userProfile && userProfile.user) {
+                    // Nếu backend trả về dữ liệu trong field "user"
+                    setUser(userProfile.user);
+                } else if (response.user) {
+                    // Nếu backend trả về user trong response login
+                    setUser(response.user);
+                } else {
+                    console.error('Profile không chứa thông tin user:', userProfile);
+
+                    // Tạo user tạm thời từ thông tin đăng nhập
+                    setUser({
+                        id: 'temp-id',
+                        username: credentials.username || credentials.email || 'user',
+                        email: credentials.email || '',
+                        role: 'user',
+                        is_active: true
+                    });
+                }
+            } catch (profileError) {
+                console.error('Lấy profile thất bại:', profileError);
+
+                // Nếu backend trả về user trong response login
+                if (response.user) {
+                    setUser(response.user);
+                } else {
+                    // Tạo user tạm thời từ thông tin đã có
+                    setUser({
+                        id: 'temp-id',
+                        username: credentials.username || credentials.email || 'user',
+                        email: credentials.email || '',
+                        role: 'user',
+                        is_active: true
+                    });
+                }
+            }
         } catch (error) {
             console.error('Login failed:', error);
             throw error;

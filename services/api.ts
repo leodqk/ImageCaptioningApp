@@ -2,7 +2,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Base URL for API requests - Cập nhật địa chỉ API của bạn tại đây
-const API_URL = "http://10.0.2.2:5000/api"; // Sử dụng 10.0.2.2 để kết nối đến localhost của máy chủ từ Android Emulator
+const API_URL = "http://192.168.1.15:5000/api"; // Địa chỉ IP thực tế của backend server
 // const API_URL = "http://localhost:5000/api"; // Dùng cho iOS simulator
 // const API_URL = "http://192.168.1.xxx:5000/api"; // Thay xxx bằng địa chỉ IP của máy chủ trong mạng LAN
 
@@ -24,6 +24,41 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add interceptor to handle response errors
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error(
+      "API Error:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    // Thêm debug info
+    if (error.response?.status === 404) {
+      console.error(
+        "404 Not Found - Endpoint không tồn tại:",
+        error.config?.url
+      );
+    } else if (error.response?.status === 401) {
+      console.error("401 Unauthorized - Token không hợp lệ hoặc đã hết hạn");
+    } else if (error.response?.status === 403) {
+      console.error("403 Forbidden - Không có quyền truy cập");
+    } else if (error.response?.status === 500) {
+      console.error("500 Server Error - Lỗi server");
+    } else if (!error.response) {
+      console.error(
+        "Network Error - Không thể kết nối đến server, kiểm tra URL:",
+        API_URL
+      );
+    }
+
     return Promise.reject(error);
   }
 );
@@ -71,22 +106,22 @@ export const authService = {
 // User services
 export const userService = {
   getProfile: async () => {
-    const response = await api.get("/profile");
+    const response = await api.get("/users/profile");
     return response.data;
   },
 
   updateProfile: async (profileData: any) => {
-    const response = await api.put("/profile", profileData);
+    const response = await api.put("/users/profile", profileData);
     return response.data;
   },
 
   getUserById: async (userId: string) => {
-    const response = await api.get(`/${userId}`);
+    const response = await api.get(`/users/${userId}`);
     return response.data;
   },
 
   searchUsers: async (query: string) => {
-    const response = await api.get("/search", { params: { query } });
+    const response = await api.get("/admin/users", { params: { query } });
     return response.data;
   },
 
@@ -102,7 +137,7 @@ export const userService = {
 // Image services
 export const imageService = {
   uploadImage: async (formData: FormData) => {
-    const response = await api.post("/upload", formData, {
+    const response = await api.post("/image-caption/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -111,17 +146,19 @@ export const imageService = {
   },
 
   updateCaption: async (imageId: string, description: string) => {
-    const response = await api.put(`/caption/${imageId}`, { description });
+    const response = await api.put(`/image-caption/caption/${imageId}`, {
+      description,
+    });
     return response.data;
   },
 
   regenerateCaption: async (imageId: string) => {
-    const response = await api.post(`/${imageId}/regenerate`);
+    const response = await api.post(`/image-caption/${imageId}/regenerate`);
     return response.data;
   },
 
   getUserImages: async (page = 1, perPage = 20) => {
-    const response = await api.get("/images/user", {
+    const response = await api.get("/images/my-images", {
       params: { page, per_page: perPage },
     });
     return response.data;
@@ -148,29 +185,31 @@ export const imageService = {
 // Admin services
 export const adminService = {
   getAllUsers: async (params: any = {}) => {
-    const response = await api.get("/users", { params });
+    const response = await api.get("/admin/users", { params });
     return response.data;
   },
 
   updateUser: async (userId: string, userData: any) => {
-    const response = await api.put(`/users/${userId}`, userData);
+    const response = await api.put(`/admin/users/${userId}`, userData);
     return response.data;
   },
 
   deleteUser: async (userId: string) => {
-    const response = await api.delete(`/users/${userId}`);
+    const response = await api.delete(`/admin/users/${userId}`);
     return response.data;
   },
 
   changeUserStatus: async (userId: string, isActive: boolean) => {
-    const response = await api.put(`/users/change-status/${userId}`, {
+    const response = await api.put(`/admin/users/change-status/${userId}`, {
       is_active: isActive,
     });
     return response.data;
   },
 
   changeUserRole: async (userId: string, role: string) => {
-    const response = await api.put(`/users/change-role/${userId}`, { role });
+    const response = await api.put(`/admin/users/change-role/${userId}`, {
+      role,
+    });
     return response.data;
   },
 
@@ -187,17 +226,17 @@ export const adminService = {
   },
 
   getReports: async (params: any = {}) => {
-    const response = await api.get("/reports", { params });
+    const response = await api.get("/admin/reports", { params });
     return response.data;
   },
 
   updateReport: async (reportId: string, status: string) => {
-    const response = await api.put(`/reports/${reportId}`, { status });
+    const response = await api.put(`/admin/reports/${reportId}`, { status });
     return response.data;
   },
 
   getStats: async () => {
-    const response = await api.get("/stats");
+    const response = await api.get("/admin/stats");
     return response.data;
   },
 };
