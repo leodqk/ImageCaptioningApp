@@ -102,58 +102,42 @@ const LoginScreen = () => {
                         resizeMode="contain"
                     />
                     <Text style={styles.title}>Image Captioning App</Text>
-                    <Text style={styles.subtitle}>Biến đổi ảnh thành lời với AI</Text>
-                </View>
-
-                {/* Phần hiển thị tính năng */}
-                <View style={styles.featuresContainer}>
-                    {features.map((feature) => (
-                        <View key={feature.id} style={styles.featureItem}>
-                            <View style={styles.featureIcon}>
-                                <Ionicons name={feature.icon as any} size={24} color="#2E86C1" />
-                            </View>
-                            <View style={styles.featureTextContainer}>
-                                <Text style={styles.featureTitle}>{feature.title}</Text>
-                                <Text style={styles.featureDescription}>{feature.description}</Text>
-                            </View>
-                        </View>
-                    ))}
                 </View>
 
                 <View style={styles.formContainer}>
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>
-                            {identifierType === 'email' ? 'Email' : 'Tên đăng nhập'}
+                            {identifierType === 'email' ? 'Email' : 'Username'}
                         </Text>
                         <TextInput
                             style={styles.input}
                             value={identifier}
                             onChangeText={setIdentifier}
-                            placeholder={identifierType === 'email' ? 'Nhập email của bạn' : 'Nhập tên đăng nhập'}
+                            placeholder={identifierType === 'email' ? 'Enter your email' : 'Enter your username'}
                             keyboardType={identifierType === 'email' ? 'email-address' : 'default'}
                             autoCapitalize="none"
                         />
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Mật khẩu</Text>
+                        <Text style={styles.label}>Password</Text>
                         <TextInput
                             style={styles.input}
                             value={password}
                             onChangeText={setPassword}
-                            placeholder="Nhập mật khẩu của bạn"
+                            placeholder="Enter your password"
                             secureTextEntry
                         />
                     </View>
 
                     <TouchableOpacity style={styles.toggleContainer} onPress={toggleIdentifierType}>
                         <Text style={styles.toggleText}>
-                            Đăng nhập bằng {identifierType === 'email' ? 'tên đăng nhập' : 'email'}
+                            Sign in with {identifierType === 'email' ? 'username' : 'email'} instead
                         </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.forgotPassword} onPress={() => Alert.alert('Thông báo', 'Tính năng quên mật khẩu sẽ có trong phiên bản tới.')}>
-                        <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
+                    <TouchableOpacity style={styles.forgotPassword} onPress={() => Alert.alert('Coming Soon', 'Forgot password feature will be available soon.')}>
+                        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -164,14 +148,14 @@ const LoginScreen = () => {
                         {isLoading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Đăng nhập</Text>
+                            <Text style={styles.buttonText}>Sign In</Text>
                         )}
                     </TouchableOpacity>
 
                     <View style={styles.registerContainer}>
-                        <Text style={styles.registerText}>Chưa có tài khoản? </Text>
+                        <Text style={styles.registerText}>Don't have an account? </Text>
                         <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                            <Text style={styles.registerLink}>Đăng ký</Text>
+                            <Text style={styles.registerLink}>Sign Up</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -203,10 +187,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#2E86C1',
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#333',
     },
     formContainer: {
         width: '100%',
@@ -268,28 +248,6 @@ const styles = StyleSheet.create({
     toggleText: {
         color: '#2E86C1',
         fontSize: 14,
-    },
-    featuresContainer: {
-        marginBottom: 40,
-    },
-    featureItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    featureIcon: {
-        marginRight: 10,
-    },
-    featureTextContainer: {
-        flex: 1,
-    },
-    featureTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    featureDescription: {
-        color: '#666',
     },
 });
 
