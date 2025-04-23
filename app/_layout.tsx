@@ -1,9 +1,9 @@
+import React, { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,8 +12,8 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-// Component that handles redirects based on authentication state
-function RootLayoutNav() {
+// Định nghĩa hook để xử lý các navigation redirect
+function useProtectedRoutes() {
   const { isLoading, isAuthenticated } = useAuth();
   const segments = useSegments();
   const router = useRouter();
@@ -43,8 +43,25 @@ function RootLayoutNav() {
 
     checkIntroStatus();
   }, [isLoading, isAuthenticated, segments]);
+}
 
-  return <Slot />;
+// Component that handles redirects based on authentication state
+function RootLayoutNav() {
+  const colorScheme = useColorScheme();
+  // Sử dụng hook bảo vệ route
+  useProtectedRoutes();
+
+  return (
+    <>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="intro" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style="auto" />
+    </>
+  );
 }
 
 export default function RootLayout() {
@@ -66,13 +83,6 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="intro" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
         <RootLayoutNav />
       </ThemeProvider>
     </AuthProvider>
