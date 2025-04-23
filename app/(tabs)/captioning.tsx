@@ -98,9 +98,22 @@ const CaptioningScreen = () => {
 
             // Upload image and get caption
             try {
+                console.log('Uploading image...');
                 const response = await imageService.uploadImage(formData);
-                setCaption(response.description);
-                setImageId(response.id);
+                console.log('Upload response:', response);
+
+                if (response && response.description) {
+                    setCaption(response.description);
+                    setImageId(response.id);
+                    // Sau khi upload thành công, reload danh sách ảnh ở trang chính
+                    console.log('Upload successful, caption:', response.description);
+                } else {
+                    console.error('Response không chứa thông tin description:', response);
+                    Alert.alert(
+                        'Lỗi dữ liệu',
+                        'Response từ server không đúng định dạng. Vui lòng kiểm tra API.'
+                    );
+                }
             } catch (error: any) {
                 console.error('Error details:', error.response?.data || error.message);
                 Alert.alert(

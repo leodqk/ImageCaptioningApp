@@ -18,6 +18,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
+const API_URL = "http://192.168.1.15:5000"; // URL của server backend
 
 interface ImageItem {
   id: string;
@@ -41,7 +42,15 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const response = await imageService.getAllImages(1, 20);
-      setImages(response.images || []);
+
+      // Đảm bảo URL đầy đủ cho hình ảnh
+      const processedImages = response.images?.map((img: any) => ({
+        ...img,
+        url: img.url.startsWith('http') ? img.url : `${API_URL}${img.url}`
+      })) || [];
+
+      setImages(processedImages);
+      console.log('Fetched images:', processedImages);
     } catch (error) {
       console.error('Failed to fetch images:', error);
     } finally {
@@ -60,17 +69,18 @@ const HomeScreen = () => {
       <TouchableOpacity
         style={styles.imageCard}
         onPress={() => {
-          Alert.alert('Image Details', `Caption: ${item.description || 'No caption available'}`);
+          Alert.alert('Chi tiết ảnh', `Mô tả: ${item.description || 'Không có mô tả'}`);
         }}
       >
         <Image
           source={{ uri: item.url }}
           style={styles.image}
           resizeMode="cover"
+          defaultSource={require('../../assets/placeholder.png')}
         />
         <View style={styles.captionContainer}>
           <Text style={styles.caption} numberOfLines={2}>
-            {item.description || 'No caption available'}
+            {item.description || 'Không có mô tả'}
           </Text>
         </View>
       </TouchableOpacity>
